@@ -42,9 +42,9 @@ router.put('/:id', isValidId, (req, res, next) => {
     if(validStock(req.body)){
         queries.update(req.params.id, req.body).then(result => {
             if(result.length>0)
-                res.status(200).json({update: true, stock: result[0]});
+                res.status(200).json({updated: true, stock: result[0]});
             else
-                res.status(404).json({update: false, stock: 'Not Found'});
+                res.status(404).json({updated: false, stock: 'Not Found'});
         });
     }else{
         next(new Error('Invalid Stock'));
