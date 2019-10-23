@@ -1,0 +1,8 @@
+# dependencies
+/node_modules
+
+# info
+/doc.txt
+
+# db connection
+/knexfile.js
