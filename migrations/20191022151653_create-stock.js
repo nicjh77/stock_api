@@ -15,7 +15,7 @@ exports.up = function(knex) {
         t.string('description').nullable();
         t.timestamp('register_date').defaultTo(knex.fn.now())
         t.date('dateOfSold');
-        t.integer('status', [0,1,2,3]).defaultTo(0).notNull(); // 0:live, 1:sold, 2:deleted, 3:staging
+        t.integer('status', [0,1,2,3]).defaultTo(0).notNull(); // 0:live, 1:sold, 2:delivered, 3:deleted
     });
 };
 

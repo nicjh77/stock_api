@@ -14,6 +14,6 @@ module.exports = {
         return knex('stock').where('id', id).update(stock, '*');
     },
     delete(id) {
-        return knex('stock').where('id', id).del();
+        return knex('stock').where('id', id).update('status', 3);
     }
 }
