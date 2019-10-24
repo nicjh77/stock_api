@@ -6,9 +6,6 @@ const User = require('../db/user');
 
 const jwt = require('jsonwebtoken');
 
-
-
-
 router.get('/', (req, res) => {
     res.json({
         message: 'security'
