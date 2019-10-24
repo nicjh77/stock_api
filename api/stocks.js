@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 
 const queries = require('../db/stock_queries');
 
@@ -13,13 +14,31 @@ let validStock = (stock) => {
     return hasVin;
 }
 
-router.get('/', (req, res) => {
-    queries.getAll().then(result => {
-        res.status(200).json({success: true, stocks: result});
+let verifyToken = (req, res, next) => {
+    const bearerHeader = req.headers['authorization'];
+    if(typeof bearerHeader !== 'undefined'){
+        const bearer = bearerHeader.split(' ');
+        const bearerToken = bearer[1];
+        req.token = bearerToken;
+        next();
+    }else{
+        res.status(403).json({success: false, message: 'no authorization'});
+    }
+}
+
+router.get('/', verifyToken, (req, res) => {
+    jwt.verify(req.token, process.env.SECRET_OR_KEY, (err, authData) => {
+        if(err){
+            res.status(403).json({success: false, message: 'no authorization'});
+        }else{
+            queries.getAll().then(result => {
+                res.status(200).json({success: true, stocks: result, authData});
+            });
+        }
     });
 });
 
-router.get('/:id', isValidId, (req, res, next) => {
+router.get('/:id', isValidId, verifyToken, (req, res, next) => {
     queries.getOne(req.params.id).then(result => {
         if(result)
             res.status(200).json({success:true, stock: result});
@@ -28,7 +47,7 @@ router.get('/:id', isValidId, (req, res, next) => {
     });
 });
 
-router.post('/', (req, res, next) => {
+router.post('/', verifyToken, (req, res, next) => {
     if(validStock(req.body)){
         queries.create(req.body).then(result => {
             res.status(200).json(({created: true, stock: result[0]}));
@@ -38,7 +57,7 @@ router.post('/', (req, res, next) => {
     }
 })
 
-router.put('/:id', isValidId, (req, res, next) => {
+router.put('/:id', isValidId, verifyToken, (req, res, next) => {
     if(validStock(req.body)){
         queries.update(req.params.id, req.body).then(result => {
             if(result.length>0)
@@ -51,7 +70,7 @@ router.put('/:id', isValidId, (req, res, next) => {
     }
 });
 
-router.delete('/:id', isValidId, (req, res, next) => {
+router.delete('/:id', isValidId, verifyToken, (req, res, next) => {
     if(validStock(req.body)){
         queries.delete(req.params.id).then(() => {
             res.status(200).json({deleted: true});
